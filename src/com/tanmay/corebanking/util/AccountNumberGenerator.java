@@ -1,0 +1,1 @@
+package com.tanmay.corebanking.util; import java.util.concurrent.atomic.AtomicLong; public final class AccountNumberGenerator{private static final AtomicLong C=new AtomicLong(1000000000L);private AccountNumberGenerator(){}public static String generate(){return String.valueOf(C.incrementAndGet());}}
