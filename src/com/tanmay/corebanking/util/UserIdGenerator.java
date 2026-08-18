@@ -1,1 +1,14 @@
-package com.tanmay.corebanking.util; import java.util.concurrent.atomic.AtomicLong; public final class UserIdGenerator{private static final AtomicLong C=new AtomicLong(10000);private UserIdGenerator(){}public static String generate(){return "CUST"+C.incrementAndGet();}}
+package com.tanmay.corebanking.util;
+
+import java.util.concurrent.atomic.AtomicLong;
+
+public final class UserIdGenerator {
+    private static final AtomicLong C = new AtomicLong(10000);
+
+    private UserIdGenerator() {
+    }
+
+    public static String generate() {
+        return "CUST" + C.incrementAndGet();
+    }
+}

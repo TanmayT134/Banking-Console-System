@@ -1,3 +1,116 @@
 package com.tanmay.corebanking.ui;
-import com.tanmay.corebanking.exception.AuthenticationException; import com.tanmay.corebanking.model.*; import com.tanmay.corebanking.service.*; import com.tanmay.corebanking.util.*;
-public class CustomerMenu {private final AuthenticationService auth;private final AccountService accounts;private final TransactionService transactions;private final PinChangeService pin;private final EmailMiniStatementService email;private final AccountMenu accountMenu;private final TransactionMenu transactionMenu;public CustomerMenu(AuthenticationService a,AccountService s,TransactionService t,PinChangeService p,EmailMiniStatementService e){auth=a;accounts=s;transactions=t;pin=p;email=e;accountMenu=new AccountMenu(s);transactionMenu=new TransactionMenu(t,s);}public void show(User u){boolean run=true;while(run&&auth.isLoggedIn()){header("CUSTOMER DASHBOARD");System.out.println("Welcome, "+u.getFullName()+"\nCustomer ID: "+u.getUserId()+"\n\n1. My Accounts\n2. Create New Account\n3. Balance Enquiry\n4. Deposit\n5. Withdraw\n6. Transfer Money\n7. Mini Statement\n8. Transaction History\n9. Change PIN\n10. Email Mini Statement\n11. Logout\n");switch(InputUtil.readIntInRange("Enter your choice: ",1,11)){case 1->accountMenu.showAccounts(u);case 2->accountMenu.createNewAccount(u);case 3->transactionMenu.balanceEnquiry(u);case 4->transactionMenu.deposit(u);case 5->transactionMenu.withdraw(u);case 6->transactionMenu.transfer(u);case 7->transactionMenu.miniStatement(u);case 8->transactionMenu.transactionHistory(u);case 9->changePin(u);case 10->sendEmail(u);case 11->{auth.logout();System.out.println("You have been logged out successfully.");run=false;}}}}private void changePin(User u){header("CHANGE PIN");try{String current=readPin("Enter current 4-digit PIN: ");auth.verifyCurrentPin(u,current);System.out.println("Current PIN verified successfully.");System.out.println("Sending OTP to "+u.getEmail()+"...");pin.generateOTP(u);String otp=InputUtil.readString("Enter OTP: ");String np=readPin("Enter new 4-digit PIN: ");String cp=readPin("Confirm new 4-digit PIN: ");if(!np.equals(cp)){System.out.println("PIN confirmation does not match.");InputUtil.pause();return;}pin.changePin(u,current,otp,np);System.out.println("PIN changed successfully! You can now login using your new PIN.");}catch(Exception e){System.out.println("PIN change failed: "+e.getMessage());}InputUtil.pause();}private void sendEmail(User u){header("EMAIL MINI STATEMENT");try{var xs=accounts.getUserAccounts(u.getUserId());if(xs.isEmpty()){System.out.println("No bank accounts found.");InputUtil.pause();return;}for(int i=0;i<xs.size();i++)System.out.println((i+1)+". "+xs.get(i).getAccountNumber()+" | "+xs.get(i).getAccountType()+" | ₹"+xs.get(i).getBalance());System.out.println("0. Back");int c=InputUtil.readIntInRange("Select account: ",0,xs.size());if(c==0)return;System.out.println("\nPreparing mini statement...");email.sendMiniStatement(u,xs.get(c-1).getAccountNumber());System.out.println("Mini statement sent successfully!\nSent to: "+u.getEmail());}catch(Exception e){System.out.println("Failed to send mini statement: "+e.getMessage());}InputUtil.pause();}private String readPin(String m){while(true){String p=InputUtil.readString(m);if(PinValidator.isValid(p))return p;System.out.println("PIN must contain exactly 4 digits.");}}private void header(String t){System.out.println("\n============================================================\n  "+t+"\n============================================================");}}
+
+import com.tanmay.corebanking.exception.AuthenticationException;
+import com.tanmay.corebanking.model.*;
+import com.tanmay.corebanking.service.*;
+import com.tanmay.corebanking.util.*;
+
+public class CustomerMenu {
+    private final AuthenticationService auth;
+    private final AccountService accounts;
+    private final TransactionService transactions;
+    private final PinChangeService pin;
+    private final EmailMiniStatementService email;
+    private final AccountMenu accountMenu;
+    private final TransactionMenu transactionMenu;
+
+    public CustomerMenu(AuthenticationService a, AccountService s, TransactionService t, PinChangeService p,
+            EmailMiniStatementService e) {
+        auth = a;
+        accounts = s;
+        transactions = t;
+        pin = p;
+        email = e;
+        accountMenu = new AccountMenu(s);
+        transactionMenu = new TransactionMenu(t, s);
+    }
+
+    public void show(User u) {
+        boolean run = true;
+        while (run && auth.isLoggedIn()) {
+            header("CUSTOMER DASHBOARD");
+            System.out.println("Welcome, " + u.getFullName() + "\nCustomer ID: " + u.getUserId()
+                    + "\n\n1. My Accounts\n2. Create New Account\n3. Balance Enquiry\n4. Deposit\n5. Withdraw\n6. Transfer Money\n7. Mini Statement\n8. Transaction History\n9. Change PIN\n10. Email Mini Statement\n11. Logout\n");
+            switch (InputUtil.readIntInRange("Enter your choice: ", 1, 11)) {
+                case 1 -> accountMenu.showAccounts(u);
+                case 2 -> accountMenu.createNewAccount(u);
+                case 3 -> transactionMenu.balanceEnquiry(u);
+                case 4 -> transactionMenu.deposit(u);
+                case 5 -> transactionMenu.withdraw(u);
+                case 6 -> transactionMenu.transfer(u);
+                case 7 -> transactionMenu.miniStatement(u);
+                case 8 -> transactionMenu.transactionHistory(u);
+                case 9 -> changePin(u);
+                case 10 -> sendEmail(u);
+                case 11 -> {
+                    auth.logout();
+                    System.out.println("You have been logged out successfully.");
+                    run = false;
+                }
+            }
+        }
+    }
+
+    private void changePin(User u) {
+        header("CHANGE PIN");
+        try {
+            String current = readPin("Enter current 4-digit PIN: ");
+            auth.verifyCurrentPin(u, current);
+            System.out.println("Current PIN verified successfully.");
+            System.out.println("Sending OTP to " + u.getEmail() + "...");
+            pin.generateOTP(u);
+            String otp = InputUtil.readString("Enter OTP: ");
+            String np = readPin("Enter new 4-digit PIN: ");
+            String cp = readPin("Confirm new 4-digit PIN: ");
+            if (!np.equals(cp)) {
+                System.out.println("PIN confirmation does not match.");
+                InputUtil.pause();
+                return;
+            }
+            pin.changePin(u, current, otp, np);
+            System.out.println("PIN changed successfully! You can now login using your new PIN.");
+        } catch (Exception e) {
+            System.out.println("PIN change failed: " + e.getMessage());
+        }
+        InputUtil.pause();
+    }
+
+    private void sendEmail(User u) {
+        header("EMAIL MINI STATEMENT");
+        try {
+            var xs = accounts.getUserAccounts(u.getUserId());
+            if (xs.isEmpty()) {
+                System.out.println("No bank accounts found.");
+                InputUtil.pause();
+                return;
+            }
+            for (int i = 0; i < xs.size(); i++)
+                System.out.println((i + 1) + ". " + xs.get(i).getAccountNumber() + " | " + xs.get(i).getAccountType()
+                        + " | ₹" + xs.get(i).getBalance());
+            System.out.println("0. Back");
+            int c = InputUtil.readIntInRange("Select account: ", 0, xs.size());
+            if (c == 0)
+                return;
+            System.out.println("\nPreparing mini statement...");
+            email.sendMiniStatement(u, xs.get(c - 1).getAccountNumber());
+            System.out.println("Mini statement sent successfully!\nSent to: " + u.getEmail());
+        } catch (Exception e) {
+            System.out.println("Failed to send mini statement: " + e.getMessage());
+        }
+        InputUtil.pause();
+    }
+
+    private String readPin(String m) {
+        while (true) {
+            String p = InputUtil.readString(m);
+            if (PinValidator.isValid(p))
+                return p;
+            System.out.println("PIN must contain exactly 4 digits.");
+        }
+    }
+
+    private void header(String t) {
+        System.out.println("\n============================================================\n  " + t
+                + "\n============================================================");
+    }
+}

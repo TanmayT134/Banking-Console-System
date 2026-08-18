@@ -1,3 +1,95 @@
 package com.tanmay.corebanking.ui;
-import com.tanmay.corebanking.model.*; import com.tanmay.corebanking.service.*; import com.tanmay.corebanking.util.InputUtil; import java.time.format.DateTimeFormatter;
-public class TransactionMenu {private final TransactionService ts;private final AccountService as;private final DateTimeFormatter f=DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");public TransactionMenu(TransactionService t,AccountService a){ts=t;as=a;}private BankAccount select(User u){var xs=as.getUserAccounts(u.getUserId());if(xs.isEmpty()){System.out.println("No bank accounts found.");return null;}System.out.println("Select account:");for(int i=0;i<xs.size();i++)System.out.println((i+1)+". "+xs.get(i).getAccountNumber()+" | "+xs.get(i).getAccountType()+" | ₹"+xs.get(i).getBalance());System.out.println("0. Back");int c=InputUtil.readIntInRange("Select account: ",0,xs.size());return c==0?null:xs.get(c-1);}public void balanceEnquiry(User u){var a=select(u);if(a!=null)System.out.println("\nAccount Number : "+a.getAccountNumber()+"\nAccount Type   : "+a.getAccountType()+"\nAvailable Balance : ₹"+a.getBalance());InputUtil.pause();}public void deposit(User u){var a=select(u);if(a!=null){ts.deposit(a.getAccountNumber(),InputUtil.readPositiveAmount("Deposit Amount: ₹"));System.out.println("Deposit successful. Balance: ₹"+a.getBalance());}InputUtil.pause();}public void withdraw(User u){var a=select(u);if(a!=null){ts.withdraw(a.getAccountNumber(),InputUtil.readPositiveAmount("Withdrawal Amount: ₹"));System.out.println("Withdrawal successful. Balance: ₹"+a.getBalance());}InputUtil.pause();}public void transfer(User u){var xs=as.getUserAccounts(u.getUserId());var a=select(u);if(a==null){InputUtil.pause();return;}String r=InputUtil.readString("Receiver account number: ");ts.transfer(a.getAccountNumber(),r,InputUtil.readPositiveAmount("Transfer Amount: ₹"));System.out.println("Transfer successful.");InputUtil.pause();}public void miniStatement(User u){var a=select(u);if(a!=null){System.out.println("\nMINI STATEMENT");for(var t:ts.getMiniStatement(a.getAccountNumber()))System.out.println(t.getTransactionId()+" | "+t.getTimestamp().format(f)+" | "+t.getTransactionType()+" | ₹"+t.getAmount()+" | "+t.getStatus());System.out.println("Current Balance: ₹"+a.getBalance());}InputUtil.pause();}public void transactionHistory(User u){var a=select(u);if(a!=null){System.out.println("\nTRANSACTION HISTORY");for(var t:ts.getTransactionHistory(a.getAccountNumber()))System.out.println(t.getTransactionId()+" | "+t.getTimestamp().format(f)+" | "+t.getTransactionType()+" | ₹"+t.getAmount()+" | "+t.getStatus()+" | "+t.getDescription());}InputUtil.pause();}}
+
+import com.tanmay.corebanking.model.*;
+import com.tanmay.corebanking.service.*;
+import com.tanmay.corebanking.util.InputUtil;
+import java.time.format.DateTimeFormatter;
+
+public class TransactionMenu {
+    private final TransactionService ts;
+    private final AccountService as;
+    private final DateTimeFormatter f = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
+    public TransactionMenu(TransactionService t, AccountService a) {
+        ts = t;
+        as = a;
+    }
+
+    private BankAccount select(User u) {
+        var xs = as.getUserAccounts(u.getUserId());
+        if (xs.isEmpty()) {
+            System.out.println("No bank accounts found.");
+            return null;
+        }
+        System.out.println("Select account:");
+        for (int i = 0; i < xs.size(); i++)
+            System.out.println((i + 1) + ". " + xs.get(i).getAccountNumber() + " | " + xs.get(i).getAccountType()
+                    + " | ₹" + xs.get(i).getBalance());
+        System.out.println("0. Back");
+        int c = InputUtil.readIntInRange("Select account: ", 0, xs.size());
+        return c == 0 ? null : xs.get(c - 1);
+    }
+
+    public void balanceEnquiry(User u) {
+        var a = select(u);
+        if (a != null)
+            System.out.println("\nAccount Number : " + a.getAccountNumber() + "\nAccount Type   : " + a.getAccountType()
+                    + "\nAvailable Balance : ₹" + a.getBalance());
+        InputUtil.pause();
+    }
+
+    public void deposit(User u) {
+        var a = select(u);
+        if (a != null) {
+            ts.deposit(a.getAccountNumber(), InputUtil.readPositiveAmount("Deposit Amount: ₹"));
+            System.out.println("Deposit successful. Balance: ₹" + a.getBalance());
+        }
+        InputUtil.pause();
+    }
+
+    public void withdraw(User u) {
+        var a = select(u);
+        if (a != null) {
+            ts.withdraw(a.getAccountNumber(), InputUtil.readPositiveAmount("Withdrawal Amount: ₹"));
+            System.out.println("Withdrawal successful. Balance: ₹" + a.getBalance());
+        }
+        InputUtil.pause();
+    }
+
+    public void transfer(User u) {
+        var xs = as.getUserAccounts(u.getUserId());
+        var a = select(u);
+        if (a == null) {
+            InputUtil.pause();
+            return;
+        }
+        String r = InputUtil.readString("Receiver account number: ");
+        ts.transfer(a.getAccountNumber(), r, InputUtil.readPositiveAmount("Transfer Amount: ₹"));
+        System.out.println("Transfer successful.");
+        InputUtil.pause();
+    }
+
+    public void miniStatement(User u) {
+        var a = select(u);
+        if (a != null) {
+            System.out.println("\nMINI STATEMENT");
+            for (var t : ts.getMiniStatement(a.getAccountNumber()))
+                System.out.println(t.getTransactionId() + " | " + t.getTimestamp().format(f) + " | "
+                        + t.getTransactionType() + " | ₹" + t.getAmount() + " | " + t.getStatus());
+            System.out.println("Current Balance: ₹" + a.getBalance());
+        }
+        InputUtil.pause();
+    }
+
+    public void transactionHistory(User u) {
+        var a = select(u);
+        if (a != null) {
+            System.out.println("\nTRANSACTION HISTORY");
+            for (var t : ts.getTransactionHistory(a.getAccountNumber()))
+                System.out.println(
+                        t.getTransactionId() + " | " + t.getTimestamp().format(f) + " | " + t.getTransactionType()
+                                + " | ₹" + t.getAmount() + " | " + t.getStatus() + " | " + t.getDescription());
+        }
+        InputUtil.pause();
+    }
+}

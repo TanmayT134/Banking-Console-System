@@ -1,3 +1,24 @@
 package com.tanmay.corebanking;
-import com.tanmay.corebanking.repository.*; import com.tanmay.corebanking.service.*; import com.tanmay.corebanking.ui.MainMenu; import com.tanmay.corebanking.util.InputUtil;
-public class Main {public static void main(String[] args){UserRepository ur=new UserRepository();AccountRepository ar=new AccountRepository();TransactionRepository tr=new TransactionRepository();AuthenticationService au=new AuthenticationService(ur);AccountService as=new AccountService(ar,ur);TransactionService ts=new TransactionService(ar,tr);PinChangeService ps=new PinChangeService(au);EmailMiniStatementService es=new EmailMiniStatementService(as,ts);try{new MainMenu(au,as,ts,ps,es).start();}finally{InputUtil.close();}}}
+
+import com.tanmay.corebanking.repository.*;
+import com.tanmay.corebanking.service.*;
+import com.tanmay.corebanking.ui.MainMenu;
+import com.tanmay.corebanking.util.InputUtil;
+
+public class Main {
+    public static void main(String[] args) {
+        UserRepository ur = new UserRepository();
+        AccountRepository ar = new AccountRepository();
+        TransactionRepository tr = new TransactionRepository();
+        AuthenticationService au = new AuthenticationService(ur);
+        AccountService as = new AccountService(ar, ur);
+        TransactionService ts = new TransactionService(ar, tr);
+        PinChangeService ps = new PinChangeService(au);
+        EmailMiniStatementService es = new EmailMiniStatementService(as, ts);
+        try {
+            new MainMenu(au, as, ts, ps, es).start();
+        } finally {
+            InputUtil.close();
+        }
+    }
+}
