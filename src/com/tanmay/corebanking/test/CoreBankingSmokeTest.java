@@ -1,7 +1,6 @@
 package com.tanmay.corebanking.test;
 
 import com.tanmay.corebanking.enums.*;
-import com.tanmay.corebanking.model.*;
 import com.tanmay.corebanking.repository.*;
 import com.tanmay.corebanking.service.*;
 import java.math.*;
