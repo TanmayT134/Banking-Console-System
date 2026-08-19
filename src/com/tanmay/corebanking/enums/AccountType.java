@@ -1,2 +1,5 @@
 package com.tanmay.corebanking.enums;
-public enum AccountType { SAVINGS, CURRENT }
+
+public enum AccountType {
+    SAVINGS, CURRENT
+}
